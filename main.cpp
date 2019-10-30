@@ -1,28 +1,44 @@
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 #include "Calculator.hpp"
 
 int main() {
 	double output = 0.0;
-	char buffer[512];
-	char* input;
+	std::string line;
+	char command[16];
 	Calculator calculator;
 
-	while (true) {
-		printf("Input: ");
-		memset(buffer, 0, sizeof(buffer));
-		scanf("%s", buffer);
-		input = buffer;
+	calculator.setVariable("PI", 3.141592653589793, true);
 
-		if ((strcmp(buffer, "quit") == 0)) {
+	while (true) {
+		printf("Input:");
+		getline(std::cin, line);
+
+		if (sscanf(line.c_str(), "%s", command) == 1) {
+			if (strcmp(command, "quit") == 0) {
+				return 0;
+			}
+			if (strcmp(command, "rem") == 0) {
+				if (sscanf(line.c_str(), "rem %s", command) == 1) {
+					calculator.removeVariable(command);
+					continue;
+				}
+			}
+			if (strcmp(command, "set") == 0) {
+				double value = 0.0;
+				if (sscanf(line.c_str(), "set %s %lf", command, &value) == 2) {
+					calculator.setVariable(command, value, false);
+					continue;
+				}
+			}
+		}
+		if (line == "quit") {
 			return 0;
 		}
 
-		calculator.setVariable("PI", 3.141592653589793, true);
-		// calculator.setFunction("MIN, 2, &CMinFunction);
-		// calculator.setFunction("SQRT", 1, &CSqrtFunction);
-		if (calculator.calculate(&output, &input)) {
+		if (calculator.calculate(&output, line.c_str())) {
 			printf("Output: %f\n\n", output);
 		}
 	}

@@ -8,6 +8,8 @@ struct Token {
 	enum TokenType {
 		END_OF_STREAM,
 
+		UNKNOWN,
+
 		LEFT_PARENTHESIS,
 		RIGHT_PARENTHESIS,
 
@@ -23,7 +25,7 @@ struct Token {
 
 	TokenType type;
 	double numberValue;
-	char identifier[16];
+	char identifier[32];
 
 	Token() {
 		type = END_OF_STREAM;
@@ -32,6 +34,9 @@ struct Token {
 };
 
 class Calculator {
+	const char* input;
+	int inputIndex;
+
 	struct Variable {
 		std::string identifier;
 		double value;
@@ -57,36 +62,42 @@ class Calculator {
 
 	Token token;
 
-	bool nextToken(char** input);
+	bool nextToken();
 
-	bool match(unsigned int tokenType, char** input);
+	bool match(unsigned int tokenType);
 
-	bool matchNumber(double* output, char** input);
+	bool matchNumber(double* output);
 
-	bool matchIdentifier(double* output, char** input);
+	bool matchIdentifier(double* output);
 
-	bool matchPrimaryExpression(double* output, char** input);
+	bool matchPrimaryExpression(double* output);
 
-	bool matchUnaryExpression(double* output, char** input);
+	bool matchUnaryExpression(double* output);
 
-	bool matchMulExpressionTail(double* lvalue, char** input);
+	bool matchMulExpressionTail(double* lvalue);
 
-	bool matchMulExpression(double* output, char**input);
+	bool matchMulExpression(double* output);
 
-	bool matchAddExpressionTail(double* lvalue, char** input);
+	bool matchAddExpressionTail(double* lvalue);
 
-	bool matchAddExpression(double* output, char**input);
+	bool matchAddExpression(double* output);
 
-	bool matchAssignExpression(double* output, char**input);
+	bool matchAssignExpression(double* output);
 
-	bool matchExpression(double* output, char** input);
+	bool matchExpression(double* output);
+
+	void error(const char* format, ...);
 
 public:
-	bool calculate(double* output, char** input);
+	bool calculate(double* output, const char* input);
 
 	bool setVariable(const char* identifier, double value, bool constant = false);
 
 	bool getVariable(const char* identifier, double* output = NULL) const;
+
+	bool removeVariable(const char* identifier);
+
+	void removeVariableAll();
 };
 
 #endif //__CALCULATOR_HPP__
