@@ -12,15 +12,23 @@ struct Token {
 
 		LEFT_PARENTHESIS,
 		RIGHT_PARENTHESIS,
+		COMMA,
 
 		NUMBER,
 		IDENTIFIER,
 
 		OPERATOR_ASSIGN,
+		OPERATOR_EQUAL,
+		OPERATOR_LEQ,
+		OPERATOR_LTN,
+		OPERATOR_GEQ,
+		OPERATOR_GTN,
+		OPERATOR_NOT_EQUAL,
 		OPERATOR_ADD,
 		OPERATOR_SUB,
 		OPERATOR_MUL,
-		OPERATOR_DIV
+		OPERATOR_DIV,
+		OPERATOR_NOT
 	};
 
 	TokenType type;
@@ -60,7 +68,9 @@ class Calculator {
 	};
 	std::vector<Variable> variableList;
 
-	Token token;
+	Token token[2];
+
+	bool getToken(Token& token);
 
 	bool nextToken();
 
@@ -82,22 +92,34 @@ class Calculator {
 
 	bool matchAddExpression(double* output);
 
+	bool matchCompExpressionTail(double* output);
+
+	bool matchCompExpression(double* output);
+
+	bool matchEqualExpressionTail(double* output);
+
+	bool matchEqualExpression(double* output);
+
 	bool matchAssignExpression(double* output);
 
 	bool matchExpression(double* output);
 
 	void error(const char* format, ...);
-
 public:
-	bool calculate(double* output, const char* input);
+
+	bool parse(double* output, const char* input);
 
 	bool setVariable(const char* identifier, double value, bool constant = false);
 
-	bool getVariable(const char* identifier, double* output = NULL) const;
+	unsigned int getVariableCount() const;
+
+	bool getVariable(const char* identifier, double* output = NULL, bool* constant = NULL) const;
+
+	bool getVariable(const unsigned int index, std::string* identifier = NULL, double* output = NULL, bool* constant = NULL) const;
 
 	bool removeVariable(const char* identifier);
 
-	void removeVariableAll();
+	void removeAllVariables();
 };
 
 #endif //__CALCULATOR_HPP__
