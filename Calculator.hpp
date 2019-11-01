@@ -12,11 +12,11 @@ struct Token {
 
 		LEFT_PARENTHESIS,
 		RIGHT_PARENTHESIS,
-		COMMA,
 
 		NUMBER,
 		IDENTIFIER,
 
+		OPERATOR_COMMA,
 		OPERATOR_ASSIGN,
 		OPERATOR_EQUAL,
 		OPERATOR_LEQ,
@@ -80,26 +80,33 @@ class Calculator {
 
 	bool matchIdentifier(double* output);
 
+	// Number, Identifier
 	bool matchPrimaryExpression(double* output);
 
+	// Operators: -
 	bool matchUnaryExpression(double* output);
 
+	// Operators: *, /
 	bool matchMulExpressionTail(double* lvalue);
 
 	bool matchMulExpression(double* output);
 
+	// Operators: +, -
 	bool matchAddExpressionTail(double* lvalue);
 
 	bool matchAddExpression(double* output);
 
-	bool matchCompExpressionTail(double* output);
+	// Operators: <, <=, >, >=
+	bool matchRelExpressionTail(double* output);
 
-	bool matchCompExpression(double* output);
+	bool matchRelExpression(double* output);
 
+	// Operators: ==, !=
 	bool matchEqualExpressionTail(double* output);
 
 	bool matchEqualExpression(double* output);
 
+	// Operators: =
 	bool matchAssignExpression(double* output);
 
 	bool matchExpression(double* output);

@@ -36,13 +36,15 @@ bool IsNum(const char c) {
 
 bool IsAlpha(const char c) {
 	return ((c >= 'a' && c <= 'z') 
-		|| (c >= 'A' && c <= 'Z'));
+		|| (c >= 'A' && c <= 'Z')
+		|| (c == '_'));
 }
 
 bool IsAlnum(const char c) {
 	return ((c >= 'a' && c <= 'z') 
 		|| (c >= 'A' && c <= 'Z')
-		|| (c >= '0' && c <= '9'));
+		|| (c >= '0' && c <= '9')
+		|| (c == '_'));
 }
 
 /*****************************************************************************/
@@ -72,11 +74,13 @@ bool Calculator::getToken(Token& token) {
 		token.identifier[0] = input[inputIndex];
 		++inputIndex;
 		return true;
+/*
 	case ',' :
 		token.type = Token::COMMA;
 		token.identifier[0] = input[inputIndex];
 		++inputIndex;
 		return true;
+*/
 	case '+' :
 		token.type = Token::OPERATOR_ADD;
 		token.identifier[0] = input[inputIndex];
@@ -156,6 +160,11 @@ bool Calculator::getToken(Token& token) {
 			++inputIndex;
 			break;
 		}
+		return true;
+	case ',' :
+		token.type = Token::OPERATOR_COMMA;
+		token.identifier[0] = input[inputIndex];
+		++inputIndex;
 		return true;
 	}
 
@@ -292,7 +301,7 @@ bool Calculator::matchPrimaryExpression(double* output) {
 				return false;
 			}
 			min = *output;
-			while (token[0].type == Token::COMMA) {
+			while (token[0].type == Token::OPERATOR_COMMA) {
 				nextToken();
 				if (matchExpression(output) == false) {
 					return false;
@@ -316,7 +325,7 @@ bool Calculator::matchPrimaryExpression(double* output) {
 				return false;
 			}
 			max = *output;
-			while (token[0].type == Token::COMMA) {
+			while (token[0].type == Token::OPERATOR_COMMA) {
 				nextToken();
 				if (matchExpression(output) == false) {
 					return false;
@@ -420,30 +429,76 @@ bool Calculator::matchAddExpression(double* output) {
 	return true;
 }
 
+bool Calculator::matchRelExpressionTail(double* lvalue) {
+	double rvalue = 0.0;
+
+	switch (token[0].type) {
+	case Token::OPERATOR_LTN :
+		nextToken();
+		if (matchAddExpression(&rvalue) == false) {
+			return false;
+		}
+		*lvalue = (*lvalue < rvalue);
+		return matchRelExpressionTail(lvalue);
+	case Token::OPERATOR_LEQ :
+		nextToken();
+		if (matchAddExpression(&rvalue) == false) {
+			return false;
+		}
+		*lvalue = (*lvalue <= rvalue);
+		return matchRelExpressionTail(lvalue);
+	case Token::OPERATOR_GTN :
+		nextToken();
+		if (matchAddExpression(&rvalue) == false) {
+			return false;
+		}
+		*lvalue = (*lvalue > rvalue);
+		return matchRelExpressionTail(lvalue);
+	case Token::OPERATOR_GEQ :
+		nextToken();
+		if (matchAddExpression(&rvalue) == false) {
+			return false;
+		}
+		*lvalue = (*lvalue >= rvalue);
+		return matchRelExpressionTail(lvalue);
+	}
+	return true;
+}
+
+bool Calculator::matchRelExpression(double* output) {
+	if (matchAddExpression(output) == false) {
+		return false;
+	}
+	if (matchRelExpressionTail(output) == false) {
+		return false;
+	}
+	return true;
+}
+
 bool Calculator::matchEqualExpressionTail(double* lvalue) {
 	double rvalue = 0.0;
 
 	switch (token[0].type) {
 	case Token::OPERATOR_EQUAL :
 		nextToken();
-		if (matchAddExpression(&rvalue) == false) {
+		if (matchRelExpression(&rvalue) == false) {
 			return false;
 		}
 		*lvalue = (*lvalue == rvalue);
-		return matchAddExpressionTail(lvalue);
+		return matchEqualExpressionTail(lvalue);
 	case Token::OPERATOR_NOT_EQUAL :
 		nextToken();
-		if (matchAddExpression(&rvalue) == false) {
+		if (matchRelExpression(&rvalue) == false) {
 			return false;
 		}
 		*lvalue = (*lvalue != rvalue);
-		return matchAddExpressionTail(lvalue);
+		return matchEqualExpressionTail(lvalue);
 	}
 	return true;
 }
 
 bool Calculator::matchEqualExpression(double* output) {
-	if (matchAddExpression(output) == false) {
+	if (matchRelExpression(output) == false) {
 		return false;
 	}
 	if (matchEqualExpressionTail(output) == false) {

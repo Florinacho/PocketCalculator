@@ -25,7 +25,8 @@ int main() {
 				calculator.getVariable(index, &identifier, &value, &constant);
 				printf("%s %s = %f\n", constant ? "constant" : "variable", identifier.c_str(), value);
 			}
-		} else {
+		} else if (input == "") {
+		}else {
 			if (calculator.parse(&output, input.c_str())) {
 				printf("Output: %f\n\n", output);
 			}
